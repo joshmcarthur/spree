@@ -43,6 +43,11 @@ class User < ActiveRecord::Base
     Role.find_by_name('admin').users.count > 0
   end
 
+  def deliver_password_reset_instructions!
+    reset_perishable_token!
+    UserMailer.password_reset_instructions(self).deliver
+  end
+
   private
 
   def check_admin
