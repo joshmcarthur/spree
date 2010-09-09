@@ -22,7 +22,7 @@ class User < ActiveRecord::Base
   # Setup accessible (or protected) attributes for your model
   attr_accessible :email, :password, :password_confirmation, :remember_me, :anonymous
 
-  alias_attribute :token, :authentication_token
+  alias_attribute :token, :persistence_token
 
   # has_role? simply needs to return true or false whether a user has a role or not.
   def has_role?(role_in_question)
@@ -30,7 +30,7 @@ class User < ActiveRecord::Base
   end
 
   def self.anonymous!
-    token = User.generate_token(:authentication_token)
+    token = User.generate_token(:persistence_token)
     User.create(:email => "#{token}@example.com", :password => token, :password_confirmation => token, :anonymous => true)
   end
 
@@ -61,5 +61,18 @@ class User < ActiveRecord::Base
     # for now force login to be same as email, eventually we will make this configurable, etc.
     self.login ||= self.email if self.email
   end 
+
+  # Generate a friendly string randomically to be used as token.
+  def self.friendly_token
+    ActiveSupport::SecureRandom.base64(15).tr('+/=', '-_ ').strip.delete("\n")
+  end
+
+  # Generate a token by looping and ensuring does not already exist.
+  def self.generate_token(column)
+    loop do
+      token = friendly_token
+      break token unless find(:first, :conditions => { column => token })
+    end
+  end
 
 end

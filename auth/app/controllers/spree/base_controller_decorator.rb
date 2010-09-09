@@ -3,7 +3,7 @@ Spree::BaseController.class_eval do
   include Spree::AuthUser
 
   # graceful error handling for cancan authorization exceptions
-  # rescue_from CanCan::AccessDenied, :with => :unauthorized
+  rescue_from CanCan::AccessDenied, :with => :unauthorized
 
   private
 
@@ -19,26 +19,6 @@ Spree::BaseController.class_eval do
   end
 
   helper_method :current_user_session, :current_user
-
-
-  def require_user
-    # unless current_user
-    #   store_location
-    #   self.notice = I18n.t("page_only_viewable_when_logged_in")
-    #   redirect_to new_user_session_url
-    #   return false
-    # end
-  end
-
-  def require_no_user
-    # if current_user
-    #   store_location
-    #   self.notice = I18n.t("page_only_viewable_when_logged_out")
-    #   redirect_to root_url
-    #   return false
-    # end
-  end
-
 
 
 

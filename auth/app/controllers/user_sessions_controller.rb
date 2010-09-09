@@ -1,6 +1,9 @@
 class UserSessionsController < Spree::BaseController
-  before_filter :require_no_user, :only => [:new, :create]
-  before_filter :require_user, :only => :destroy
+  include Spree::CurrentOrder
+  include Spree::AuthUser
+
+  after_filter :associate_user, :only => :create
+
   ssl_required :new, :create, :destroy, :update
   ssl_allowed :login_bar
 
@@ -9,16 +12,17 @@ class UserSessionsController < Spree::BaseController
   end
 
   def create
-    not_need_user_auto_creation =
-        user_without_openid(params[:user_session]) ||
-        user_with_openid_exists?(:openid_identifier => params['openid.identity']) ||
-        user_with_openid_exists?(params[:user_session])
+    create_user_session(params[:user_session])
+    # not_need_user_auto_creation =
+    #     user_without_openid(params[:user_session]) ||
+    #     user_with_openid_exists?(:openid_identifier => params['openid.identity']) ||
+    #     user_with_openid_exists?(params[:user_session])
 
-    if not_need_user_auto_creation
-      create_user_session(params[:user_session])
-    else
-      create_user(params[:user_session])
-    end
+    # if not_need_user_auto_creation
+    #   create_user_session(params[:user_session])
+    # else
+    #   create_user(params[:user_session])
+    # end
   end
 
   def destroy
@@ -33,6 +37,12 @@ class UserSessionsController < Spree::BaseController
   end
 
   private
+
+  def associate_user
+    return unless current_user and current_order
+    current_order.associate_user!(current_user) if can? :edit, current_order
+    session[:guest_token] = nil
+  end
 
   def user_with_openid_exists?(data)
     data && !data[:openid_identifier].blank? &&

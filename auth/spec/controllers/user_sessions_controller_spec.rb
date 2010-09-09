@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe SessionsController do
+describe UserSessionsController do
   before(:each) do
   end
 
@@ -11,7 +11,6 @@ describe SessionsController do
 
       before do
         controller.stub :authorize! => true
-        controller.stub_chain :warden, :authenticated? => true
         controller.stub :current_order => order
         controller.stub :current_user => user
       end
