@@ -3,7 +3,7 @@ Spree::BaseController.class_eval do
   include Spree::AuthUser
 
   # graceful error handling for cancan authorization exceptions
-  rescue_from CanCan::AccessDenied, :with => :unauthorized
+  # rescue_from CanCan::AccessDenied, :with => :unauthorized
 
   private
 
@@ -20,22 +20,23 @@ Spree::BaseController.class_eval do
 
   helper_method :current_user_session, :current_user
 
+
   def require_user
-    unless current_user
-      store_location
-      self.notice = I18n.t("page_only_viewable_when_logged_in")
-      redirect_to new_user_session_url
-      return false
-    end
+    # unless current_user
+    #   store_location
+    #   self.notice = I18n.t("page_only_viewable_when_logged_in")
+    #   redirect_to new_user_session_url
+    #   return false
+    # end
   end
 
   def require_no_user
-    if current_user
-      store_location
-      self.notice = I18n.t("page_only_viewable_when_logged_out")
-      redirect_to root_url
-      return false
-    end
+    # if current_user
+    #   store_location
+    #   self.notice = I18n.t("page_only_viewable_when_logged_out")
+    #   redirect_to root_url
+    #   return false
+    # end
   end
 
 
@@ -53,7 +54,7 @@ Spree::BaseController.class_eval do
           render 'shared/unauthorized', :layout => 'spree_application'
         else
           store_location
-          redirect_to new_user_session_path and return
+          redirect_to login_path and return
         end
       end
       format.xml do
@@ -64,10 +65,11 @@ Spree::BaseController.class_eval do
 
   def store_location
     # disallow return to login, logout, signup pages
-    disallowed_urls = [new_user_registration_path, new_user_session_path, destroy_user_session_path]
+    disallowed_urls = [signup_url, login_url, logout_url]
     disallowed_urls.map!{|url| url[/\/\w+$/]}
-    unless disallowed_urls.include?(request.fullpath)
-      session[:return_to] = request.fullpath
+    unless disallowed_urls.include?(request.request_uri)
+      session[:return_to] = request.request_uri
     end
   end
+
 end

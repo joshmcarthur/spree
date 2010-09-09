@@ -39,10 +39,14 @@ class User < ActiveRecord::Base
     write_attribute :email, email
   end
 
+  def self.admin_created?
+    Role.find_by_name('admin').users.count > 0
+  end
+
   private
 
   def check_admin
-    if User.where("roles.name" => "admin").includes(:roles).empty?
+    unless self.class.admin_created?
       self.roles << Role.find_by_name("admin")
     end
     true
