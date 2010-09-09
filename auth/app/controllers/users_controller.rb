@@ -18,7 +18,7 @@ class UsersController < Spree::BaseController
   def update
     @user = current_user
     if @user.update_attributes(params[:user])
-      self.notice = t("account_updated")
+      flash[:notice] = t("account_updated")
       redirect_to account_url
     else
       render :action => :edit
