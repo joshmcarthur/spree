@@ -7,10 +7,16 @@ class User < ActiveRecord::Base
 
   before_save :check_admin
 
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable and :timeoutable
-  devise :database_authenticatable, :registerable, :token_authenticatable,
-         :recoverable, :rememberable, :trackable, :validatable
+  acts_as_authentic do |c|
+    c.transition_from_restful_authentication = true
+    #AuthLogic defaults
+    #c.validate_email_field = true
+    #c.validates_length_of_email_field_options = {:within => 6..100}
+    #c.validates_format_of_email_field_options = {:with => email_regex, :message => I18n.t(‘error_messages.email_invalid’, :default => “should look like an email address.”)}
+    #c.validate_password_field = true
+    #c.validates_length_of_password_field_options = {:minimum => 4, :if => :require_password?}
+    #for more defaults check the AuthLogic documentation
+  end
 
   # Setup accessible (or protected) attributes for your model
   attr_accessible :email, :password, :password_confirmation, :remember_me, :anonymous

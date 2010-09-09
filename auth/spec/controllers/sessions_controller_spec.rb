@@ -1,9 +1,7 @@
 require 'spec_helper'
 
-describe Devise::SessionsController do
+describe SessionsController do
   before(:each) do
-    # apparently this is needed to test devise with rspec
-    controller.request.env["devise.mapping"] = Devise.mappings[:user]
   end
 
   context "#create" do

@@ -7,6 +7,41 @@ Spree::BaseController.class_eval do
 
   private
 
+
+  def current_user_session
+    return @current_user_session if defined?(@current_user_session)
+    @current_user_session = UserSession.find
+  end
+
+  def current_user
+    return @current_user if defined?(@current_user)
+    @current_user = current_user_session && current_user_session.user
+  end
+
+  helper_method :current_user_session, :current_user
+
+  def require_user
+    unless current_user
+      store_location
+      self.notice = I18n.t("page_only_viewable_when_logged_in")
+      redirect_to new_user_session_url
+      return false
+    end
+  end
+
+  def require_no_user
+    if current_user
+      store_location
+      self.notice = I18n.t("page_only_viewable_when_logged_out")
+      redirect_to root_url
+      return false
+    end
+  end
+
+
+
+
+
   # Redirect as appropriate when an access request fails.  The default action is to redirect to the login screen.
   # Override this method in your controllers if you want to have special behavior in case the user is not authorized
   # to access the requested action.  For example, a popup window might simply close itself.
