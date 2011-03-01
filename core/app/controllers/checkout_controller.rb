@@ -59,8 +59,14 @@ class CheckoutController < Spree::BaseController
   end
 
   def state_callback(before_or_after = :before)
-    method_name = :"#{before_or_after}_#{@order.state}"
+    state = before_or_after == :before ? @order.state : previous_state(@order.state)
+    method_name = :"#{before_or_after}_#{state}"
     send(method_name) if respond_to?(method_name, true)
+  end
+
+  def previous_state(current_state)
+    states = Order.state_machine.states.map { |s| s.name }
+    states[states.find_index(current_state) - 1]
   end
 
   def before_address
@@ -91,3 +97,4 @@ class CheckoutController < Spree::BaseController
   end
 
 end
+
